@@ -45,7 +45,9 @@ public class UsuarioPersistenceAdapter implements UsuarioRepositoryPort {
 
     @Override
     public boolean existeUsernameEnOtroUsuario(String username, Long idExcluido) {
-        return jpa.existeUsername(username, idExcluido);
+        return idExcluido == null
+                ? jpa.existsByUsernameIgnoreCase(username)
+                : jpa.existsByUsernameIgnoreCaseAndIdNot(username, idExcluido);
     }
 
     @Override
