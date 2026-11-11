@@ -1,0 +1,22 @@
+# Imagen para el Container Runtime de Vercel (también sirve en Render, Koyeb, etc.)
+
+# --- Etapa 1: compilar con Maven ---
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn -B -ntp -q dependency:go-offline
+COPY src ./src
+RUN mvn -B -ntp -q package -DskipTests
+
+# --- Etapa 2: imagen liviana solo con el JRE ---
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/target/musicapp-api.jar app.jar
+
+# Vercel envía el tráfico al puerto definido en la variable PORT (en el proyecto se configura PORT=8080)
+ENV PORT=8080
+EXPOSE 8080
+
+# Opciones para arrancar más rápido y con poca memoria
+ENV JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:MaxRAMPercentage=75"
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
