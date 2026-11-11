@@ -16,9 +16,9 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, Long>
 
     boolean existsByEmail(String email);
 
-    @Query("select count(u) > 0 from UsuarioEntity u where lower(u.username) = lower(:username) "
-            + "and (:idExcluido is null or u.id <> :idExcluido)")
-    boolean existeUsername(@Param("username") String username, @Param("idExcluido") Long idExcluido);
+    boolean existsByUsernameIgnoreCase(String username);
+
+    boolean existsByUsernameIgnoreCaseAndIdNot(String username, Long id);
 
     @Query("select u from UsuarioEntity u where lower(u.nombre) like lower(concat(:prefijo, '%')) order by u.nombre")
     List<UsuarioEntity> buscarPorNombreQueEmpiezaCon(@Param("prefijo") String prefijo);
