@@ -1,0 +1,54 @@
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: musicapp-api
+  main:
+    lazy-initialization: true
+  datasource:
+    # Supabase: usar el "Transaction pooler" (puerto 6543), compatible con IPv4 y entornos serverless
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 0
+      connection-timeout: 10000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        boot:
+          allow_jdbc_metadata_access: false
+        jdbc:
+          time_zone: UTC
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+
+app:
+  jwt:
+    # Clave para firmar los tokens (mínimo 32 caracteres). En producción se define con la variable JWT_SECRET.
+    secret: ${JWT_SECRET:clave-de-desarrollo-solo-local-cambiar-en-produccion}
+    expiracion-horas: ${JWT_EXPIRACION_HORAS:24}
+  recuperacion:
+    minutos-validez: 15
+  mail:
+    remitente: ${MAIL_FROM:${MAIL_USERNAME:no-reply@musicapp.local}}
