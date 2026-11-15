@@ -173,3 +173,22 @@ Para editar la app: en [Kodular Creator](https://creator.kodular.io) usa **Impor
 ## 8. Tecnologías
 
 Java 21 · Spring Boot 3.5 (Web, Data JPA, Validation, Mail) · Spring Security Crypto (BCrypt) · JJWT · PostgreSQL (Supabase) · JUnit 5 + Mockito · GitHub Actions · Docker · Vercel · Kodular.
+
+## 9. Incidencias resueltas
+
+### Recuperación de contraseña: el correo no se enviaba (15/11/2026)
+
+**Síntoma.** En la app Kodular (unidad 2) y en la app Android ([unidad 3](https://github.com/Chromnos05/Desarrollo_de_apps_unidad_3_Oscar_Mercado)), al pedir el código para restablecer la contraseña aparecía *"No se pudo enviar el correo. Intenta más tarde."* y el correo nunca llegaba. El resto de la app (login, CRUD y reportes) funcionaba con normalidad.
+
+**Diagnóstico.**
+1. `POST /api/auth/recuperar` respondía `503` en unos 1,5 s en cada intento. Un puerto SMTP bloqueado habría tardado lo que dura el tiempo de espera de conexión (10 s), así que la API sí llegaba al servidor de Gmail.
+2. Se mostró temporalmente la causa raíz en la respuesta de error (commit `880de3a`). Gmail rechazaba el inicio de sesión: `535 5.7.8 Username and Password not accepted (BadCredentials)`.
+3. Causa: la contraseña de la variable de entorno `MAIL_PASSWORD` en Vercel no era una contraseña de aplicación válida. Gmail solo acepta conexiones SMTP con una **contraseña de aplicación** de una cuenta con verificación en 2 pasos.
+
+**Solución.**
+1. Se generó una nueva contraseña de aplicación en la cuenta de Google que envía los correos.
+2. Se actualizó `MAIL_PASSWORD` en Vercel (*Settings → Environment Variables*) y se volvió a desplegar.
+3. Se verificó que `POST /api/auth/recuperar` responde `200` y que el código llega al correo.
+4. El usuario vuelve a ver el mensaje genérico; la causa técnica queda registrada solo en el log del servidor (`SmtpNotificacionAdapter`).
+
+**Si vuelve a ocurrir.** Buscar en los logs del servidor la línea `No se pudo enviar el correo de recuperación`, que incluye la respuesta del servidor SMTP. Un `535` indica credenciales inválidas: revisar `MAIL_USERNAME` y `MAIL_PASSWORD` y volver a desplegar.
