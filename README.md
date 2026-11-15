@@ -9,7 +9,7 @@ Aplicación móvil en **Kodular** para el **Ejercicio N° 20 – Canciones**, co
 | Ejercicio | 20 – Canciones |
 | Actividad | Unidad 2 – Kodular con persistencia en API REST online y sensores |
 | API en producción | https://musicapp-api-ten.vercel.app/api/health |
-| Video explicativo | _Pendiente_ |
+| Video explicativo | [youtu.be/Cl8gmIZ9N6A](https://youtu.be/Cl8gmIZ9N6A) |
 
 ---
 
