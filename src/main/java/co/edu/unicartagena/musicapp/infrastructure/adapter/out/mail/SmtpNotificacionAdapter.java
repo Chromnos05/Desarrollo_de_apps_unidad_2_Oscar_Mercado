@@ -58,8 +58,14 @@ public class SmtpNotificacionAdapter implements NotificacionPort {
         try {
             sender.send(mensaje);
         } catch (MailException e) {
-            log.error("No se pudo enviar el correo de recuperación a {}", email, e);
-            throw new ServicioNoDisponibleException("No se pudo enviar el correo. Intenta más tarde.", e);
+            Throwable raiz = e;
+            while (raiz.getCause() != null && raiz.getCause() != raiz) {
+                raiz = raiz.getCause();
+            }
+            String detalle = raiz.getClass().getSimpleName() + ": " + raiz.getMessage();
+            log.error("No se pudo enviar el correo de recuperación a {} ({})", email, detalle, e);
+            throw new ServicioNoDisponibleException(
+                    "No se pudo enviar el correo. Intenta más tarde. [" + detalle.strip() + "]", e);
         }
     }
 }
